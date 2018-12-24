@@ -107,4 +107,7 @@ var sendCodePerEmail = func(email string, code string) {
 	if err != nil {
 		fmt.Println("Error sending message")
 	}
+
+	fmt.Println("Message Sent to: ", email)
+
 }
