@@ -1,15 +1,10 @@
 # License
 
-This an open source BSD licensed project. Please look at the LICENSE file.
-This project is open source but is not free to use....
+See LICENSE
 
-For educational purpose you are allow unlimited usage of the following source 
-code and create derived product as long as it is not 100% the same. The license of 
- which must be open source. 
+If you like this please donate at mc at courtoisconsulting.com
 
-Without an explicit agreement from Courtois Consulting you are not allowed 
-to use this software as is or use any of it's code and content for commercial purpose, 
-unless the code used is not from Courtois Consulting.
+If you have any custom wishes we can make it happens just contact us.
 
 # Authors
 
@@ -28,10 +23,15 @@ It provide the following functionality :
 
  - Set of REST API to register and login
 
+You can literaly use this as the backend for any website to register and login users 
+with JWT using no password and only 2nd Factor autentication see https://fidoalliance.org/.
+
 
 # JWT Handling
 
-The JWT validation will be down first by Nginx.
+The JWT is validated on the Reverse Proxy using Nginx custom module... this is not 
+implemented inside this code. This repo is not JWT protected since it provide 
+endpoints that aren't secure
 
 # Authentication
 
