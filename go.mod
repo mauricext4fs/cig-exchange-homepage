@@ -1,4 +1,4 @@
-module cig-exchange-sso-backend
+module cig-exchange-homepage-backend
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	u "cig-exchange-sso-backend/utils"
+	u "cig-exchange-libs/utils"
 	"net/http"
 )
 
