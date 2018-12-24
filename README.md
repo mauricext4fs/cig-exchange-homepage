@@ -22,13 +22,11 @@ https://cig-exchange.ch
 
 # Info
 
-CIG Exchange go is the full backend use by https://cig-exchange.ch.
+CIG Exchange Homepage is the full backend use by https://www.cig-exchange.ch.
 
 It provide the following functionality :
 
- - Provides a full set of REST API for investor to manage assets across multiple platform
- - Provides a REST API to manage Crowdfunding / Crowdfunding listing
- - Provides a set of REST API to manage users, organisation, and authentication settings
+ - Set of REST API to register and login
 
 
 # JWT Handling
@@ -37,8 +35,8 @@ The JWT validation will be down first by Nginx.
 
 # Authentication
 
-This project use basic user/pass combination stored in Database
-(nobody seems to learn that it is bad!!). We need to change this.
+Authentication is 2nd factor required... we don't use password. The user must 
+enter a verification code sent into his Email or by SMS to be able to login
 
 ## Vision
 
