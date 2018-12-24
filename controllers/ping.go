@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	u "cig-exchange-libs/utils"
+	u "cig-exchange-libs"
 	"net/http"
 )
 
