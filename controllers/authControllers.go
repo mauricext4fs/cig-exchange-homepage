@@ -1,12 +1,13 @@
 package controllers
 
 import (
+	"cig-exchange-libs"
 	"cig-exchange-libs/models"
 	"encoding/json"
 	"fmt"
 	"github.com/mattbaird/gochimp"
-	"github.com/mauricext4fs/cig-exchange-libs"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -57,7 +58,53 @@ var SendVerificationCodeByEmail = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sendCodePerEmail(account.Email, code.Code)
+
 	msg := fmt.Sprintf("Code Sent to: %s", account.Email)
 	resp := cigExchange.Message(true, msg)
 	cigExchange.Respond(w, resp)
+}
+
+var sendCodePerEmail = func(email string, code string) {
+	apiKey := os.Getenv("MANDRILL_KEY")
+	mandrillApi, err := gochimp.NewMandrill(apiKey)
+
+	if err != nil {
+		fmt.Println("Error instantiating client")
+	}
+
+	templateName := "welcome email"
+	contentVar := gochimp.Var{"main", "<h1>Welcome aboard!</h1>"}
+	content := []gochimp.Var{contentVar}
+
+	_, err = mandrillApi.TemplateAdd(templateName, fmt.Sprintf("%s", contentVar.Content), true)
+	if err != nil {
+		fmt.Println("Error adding template: %v", err)
+		return
+	}
+	defer mandrillApi.TemplateDelete(templateName)
+	renderedTemplate, err := mandrillApi.TemplateRender(templateName, content, nil)
+
+	if err != nil {
+		fmt.Println("Error rendering template: %v", err)
+		return
+	}
+
+	recipients := []gochimp.Recipient{
+		gochimp.Recipient{Email: email},
+	}
+
+	message := gochimp.Message{
+		Html:      renderedTemplate,
+		Subject:   "Welcome aboard!",
+		FromEmail: email,
+		FromName:  "Boss Man",
+		To:        recipients,
+	}
+
+	_, err = mandrillApi.MessageSend(message, false)
+
+	if err != nil {
+		fmt.Println("Error sending message")
+	}
 }
