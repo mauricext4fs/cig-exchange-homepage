@@ -5,10 +5,11 @@ import (
 	"cig-exchange-libs/models"
 	"encoding/json"
 	"fmt"
-	"github.com/mattbaird/gochimp"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/mattbaird/gochimp"
 )
 
 var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
@@ -74,19 +75,22 @@ var sendCodePerEmail = func(email string, code string) {
 	}
 
 	templateName := "welcome email"
-	contentVar := gochimp.Var{"main", "<h1>Welcome aboard!</h1>"}
+	contentVar := gochimp.Var{
+		Name:    "main",
+		Content: "<h1>Welcome aboard!</h1>",
+	}
 	content := []gochimp.Var{contentVar}
 
 	_, err = mandrillApi.TemplateAdd(templateName, fmt.Sprintf("%s", contentVar.Content), true)
 	if err != nil {
-		fmt.Println("Error adding template: %v", err)
+		fmt.Printf("Error adding template: %v\n", err)
 		return
 	}
 	defer mandrillApi.TemplateDelete(templateName)
 	renderedTemplate, err := mandrillApi.TemplateRender(templateName, content, nil)
 
 	if err != nil {
-		fmt.Println("Error rendering template: %v", err)
+		fmt.Printf("Error rendering template: %v\n", err)
 		return
 	}
 
