@@ -1,8 +1,8 @@
 package app
 
 import (
-	"cig-exchange-homepage-backend/models"
-	u "cig-exchange-homepage-backend/utils"
+	u "cig-exchange-libs"
+	"cig-exchange-libs/models"
 	"context"
 	"net/http"
 	"os"
