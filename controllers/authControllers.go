@@ -74,20 +74,26 @@ var sendCodePerEmail = func(email string, code string) {
 		fmt.Println("Error instantiating client")
 	}
 
-	templateName := "welcome email"
+	templateName := "pin-code"
+	templateContent, err := mandrillApi.TemplateInfo(templateName)
+	if err != nil {
+		fmt.Printf("Error getting template info: %v\n", err)
+		return
+	}
+
 	contentVar := gochimp.Var{
-		Name:    "main",
-		Content: "<h1>Welcome aboard!</h1>",
+		Name:    "pin-code",
+		Content: templateContent,
 	}
 	content := []gochimp.Var{contentVar}
 
-	_, err = mandrillApi.TemplateAdd(templateName, fmt.Sprintf("%s", contentVar.Content), true)
-	if err != nil {
-		fmt.Printf("Error adding template: %v\n", err)
-		return
+	mergeVar := gochimp.Var{
+		Name:    "pincode",
+		Content: code,
 	}
-	defer mandrillApi.TemplateDelete(templateName)
-	renderedTemplate, err := mandrillApi.TemplateRender(templateName, content, nil)
+	merge := []gochimp.Var{mergeVar}
+
+	renderedTemplate, err := mandrillApi.TemplateRender(templateName, content, merge)
 
 	if err != nil {
 		fmt.Printf("Error rendering template: %v\n", err)
@@ -101,8 +107,8 @@ var sendCodePerEmail = func(email string, code string) {
 	message := gochimp.Message{
 		Html:      renderedTemplate,
 		Subject:   "Welcome aboard!",
-		FromEmail: email,
-		FromName:  "Boss Man",
+		FromEmail: "noreply@cig-exchange.ch",
+		FromName:  "CIG Exchange",
 		To:        recipients,
 	}
 
