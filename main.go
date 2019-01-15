@@ -10,15 +10,17 @@ import (
 
 func main() {
 
+	baseUri := "/invest/api/"
+
 	router := mux.NewRouter()
 
-	router.HandleFunc("/api/ping", controllers.Ping).Methods("GET")
-	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
-	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
-	router.HandleFunc("/api/sendcode", controllers.SendVerificationCodeByEmail).Methods("POST")
-	router.HandleFunc("/api/contacts/new", controllers.CreateContact).Methods("POST")
-	router.HandleFunc("/api/me/contacts", controllers.GetContactsFor).Methods("GET") //  user/2/contacts
-	router.HandleFunc("/api/contact_us", controllers.SendContactUsEmail).Methods("POST")
+	router.HandleFunc(baseUri+"ping", controllers.Ping).Methods("GET")
+	router.HandleFunc(baseUri+"user/new", controllers.CreateAccount).Methods("POST")
+	router.HandleFunc(baseUri+"user/login", controllers.Authenticate).Methods("POST")
+	router.HandleFunc(baseUri+"sendcode", controllers.SendVerificationCodeByEmail).Methods("POST")
+	router.HandleFunc(baseUri+"contacts/new", controllers.CreateContact).Methods("POST")
+	router.HandleFunc(baseUri+"me/contacts", controllers.GetContactsFor).Methods("GET") //  user/2/contacts
+	router.HandleFunc(baseUri+"contact_us", controllers.SendContactUsEmail).Methods("POST")
 
 	//attach JWT auth middleware
 	//router.Use(app.JwtAuthentication)
