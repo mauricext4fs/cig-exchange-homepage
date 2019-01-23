@@ -1,0 +1,24 @@
+FORMAT: 1A
+
+# CIG-Exchange Homepage API
+This is a **API Blueprint** file that describes **CIG-Exchange Homapage API**.
+
+
+# Group Contact Us
+
+## invest/api/contact_us [/invest/api/contact_us]
+
+### Contact Us [POST]
+Send contact us email message.
+
++ Request (application/json)
+    + Attributes (ContactUs Request)
+
++ Response 204
+
+## Data Structures
+
+### ContactUs Request
++ name: name (string, required) - name
++ email: email (string, required) - email
++ message: message (string, required) - message
