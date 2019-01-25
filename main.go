@@ -30,6 +30,7 @@ func main() {
 	router.HandleFunc(baseURI+"accounts/signup", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc(baseURI+"accounts/signin", controllers.GetAccount).Methods("POST")
 	router.HandleFunc(baseURI+"accounts/send_otp", controllers.SendCode).Methods("POST")
+	router.HandleFunc(baseURI+"accounts/verify_otp", controllers.VerifyCode).Methods("POST")
 	router.HandleFunc(baseURI+"contact_us", controllers.SendContactUsEmail).Methods("POST")
 
 	//attach JWT auth middleware
