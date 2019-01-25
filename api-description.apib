@@ -51,6 +51,19 @@ Supported types are "email" and "phone"
 
 + Response 204
 
+## invest/api/accounts/verify_otp [/invest/api/accounts/verify_otp]
+
+### Verify OTP [POST]
+Verify one time password.
+Supported types are "email" and "phone".
+On success, jwt is returned.
+
++ Request (application/json)
+    + Attributes (OTP Verify Request)
+
++ Response 200 (application/json)
+    + Attributes (OTP Response)
+
 ## Data Structures
 
 ### ContactUs Request
@@ -77,3 +90,12 @@ Supported types are "email" and "phone"
 ### OTP Send Request
 + uuid: `fdb283d4-7341-4517-b501-371d22d27cfc` (string, required) - user account uuid
 + type: `email` (string, required) - otp type, supported values are 'email' and 'phone'
+
+### OTP Verify Request
++ uuid: `fdb283d4-7341-4517-b501-371d22d27cfc` (string, required) - user account uuid
++ type: `email` (string, required) - otp type, supported values are 'email' and 'phone'
++ code: `123456` (string, required) - otp code
+
+### OTP Response
++ jwt: `1234567890` (string, required) - jwt for futher auth
+

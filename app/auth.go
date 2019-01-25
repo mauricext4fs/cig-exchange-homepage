@@ -11,7 +11,7 @@ import (
 )
 
 type Token struct {
-	UserId uint
+	UserUUID string
 	jwt.StandardClaims
 }
 
@@ -75,7 +75,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		}
 
 		//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
-		ctx := context.WithValue(r.Context(), "user", tk.UserId)
+		ctx := context.WithValue(r.Context(), "user", tk.UserUUID)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r) //proceed in the middleware chain!
 	})

@@ -1,19 +1,26 @@
 package controllers
 
 import (
+	"cig-exchange-homepage-backend/app"
 	"cig-exchange-libs"
 	"cig-exchange-libs/models"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/mattbaird/gochimp"
 	uuid "github.com/satori/go.uuid"
 )
 
 type accountResponse struct {
 	UUID string `json:"uuid"`
+}
+
+type verifyCodeResponse struct {
+	JWT string `json:"jwt"`
 }
 
 type verificationCodeRequest struct {
@@ -141,6 +148,77 @@ var SendCode = func(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Println("SendCode: Error: unsupported otp type")
 	}
+}
+
+// VerifyCode handles GET api/accounts/verify_otp endpoint
+var VerifyCode = func(w http.ResponseWriter, r *http.Request) {
+
+	retErr := fmt.Errorf("Invalid code")
+	retCode := 401
+
+	reqStruct := &verificationCodeRequest{}
+	// decode verificationCodeRequest object from request body
+	err := json.NewDecoder(r.Body).Decode(reqStruct)
+	if err != nil {
+		fmt.Println("VerifyCode: body JSON decoding error:")
+		fmt.Println(err.Error())
+		cigExchange.RespondWithError(w, retCode, retErr)
+		return
+	}
+
+	account, err := models.GetAccount(reqStruct.UUID)
+	if err != nil {
+		fmt.Println("VerifyCode: db Lookup error:")
+		fmt.Println(err.Error())
+		cigExchange.RespondWithError(w, retCode, retErr)
+		return
+	}
+
+	// verify code
+	if reqStruct.Type == "phone" {
+		twilioClient := cigExchange.GetTwilio()
+		_, err := twilioClient.VerifyOTP(reqStruct.Code, account.MobileCode, account.MobileNumber)
+		if err != nil {
+			fmt.Println("VerifyCode: twillio error:")
+			fmt.Println(err.Error())
+			cigExchange.RespondWithError(w, retCode, retErr)
+			return
+		}
+
+	} else if reqStruct.Type == "email" {
+		rediskey := cigExchange.GenerateRedisKey(reqStruct.UUID)
+
+		redisCmd := cigExchange.GetRedis().Get(rediskey)
+		if redisCmd.Err() != nil {
+			fmt.Println("VerifyCode: redis error:")
+			fmt.Println(err.Error())
+			cigExchange.RespondWithError(w, retCode, retErr)
+			return
+		}
+		if redisCmd.Val() != reqStruct.Code {
+			fmt.Println("VerifyCode: code mismatch, expecting " + redisCmd.Val())
+			cigExchange.RespondWithError(w, retCode, retErr)
+			return
+		}
+	} else {
+		fmt.Println("VerifyCode: Error: unsupported otp type")
+		cigExchange.RespondWithError(w, retCode, retErr)
+		return
+	}
+
+	// verification passed, generate jwt and return it
+	tk := &app.Token{UserUUID: account.ID}
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	tokenString, err := token.SignedString([]byte(os.Getenv("token_password")))
+	if err != nil {
+		fmt.Println("VerifyCode: jwt generation failed:")
+		fmt.Println(err.Error())
+		cigExchange.RespondWithError(w, retCode, retErr)
+		return
+	}
+
+	resp := &verifyCodeResponse{JWT: tokenString}
+	cigExchange.Respond(w, resp)
 }
 
 func sendCodeInEmail(code, email string) {
