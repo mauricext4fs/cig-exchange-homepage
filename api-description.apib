@@ -3,7 +3,6 @@ FORMAT: 1A
 # CIG-Exchange Homepage API
 This is a **API Blueprint** file that describes **CIG-Exchange Homapage API**.
 
-
 # Group Contact Us
 
 ## invest/api/contact_us [/invest/api/contact_us]
@@ -16,9 +15,50 @@ Send contact us email message.
 
 + Response 204
 
+# Group Account
+
+## invest/api/accounts/signup [/invest/api/accounts/signup]
+
+### Signup [POST]
+Create a new account.
+
++ Request (application/json)
+    + Attributes (Account Request)
+
++ Response 200 (application/json)
+    + Attributes (Account Response)
+
+## invest/api/accounts/signin [/invest/api/accounts/signin]
+
+### Signin [POST]
+Login to existing account.
+Either email or mobile should be specified.
+
++ Request (application/json)
+    + Attributes (Account Signin Request)
+
++ Response 200 (application/json)
+    + Attributes (Account Response)
+
 ## Data Structures
 
 ### ContactUs Request
 + name: name (string, required) - name
 + email: email (string, required) - email
 + message: message (string, required) - message
+
+### Account Request
++ first_name: First Name (string, required) - user first name
++ last_name: Last Name (string, required) - user last name
++ reference_key: ref key (string, required) - reference key
++ email: email@email.com (string, required) - user email
++ mobile_code: +1 (string, required) - user mobile number code
++ mobile_number: 1111111111 (string, required) - user mobile number
+
+### Account Signin Request
++ email: email@email.com (string) - user email
++ mobile_code: +1 (string) - user mobile number code
++ mobile_number: 1111111111 (string) - user mobile number
+
+### Account Response
++ uuid: `fdb283d4-7341-4517-b501-371d22d27cfc` (string, required) - user account uuid

@@ -2,7 +2,6 @@ package app
 
 import (
 	u "cig-exchange-libs"
-	"cig-exchange-libs/models"
 	"context"
 	"net/http"
 	"os"
@@ -10,6 +9,11 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
+
+type Token struct {
+	UserId uint
+	jwt.StandardClaims
+}
 
 var JwtAuthentication = func(next http.Handler) http.Handler {
 
@@ -48,7 +52,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		}
 
 		tokenPart := splitted[1] //Grab the token part, what we are truly interested in
-		tk := &models.Token{}
+		tk := &Token{}
 
 		token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("token_password")), nil
