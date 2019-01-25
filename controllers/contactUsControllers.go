@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/keighl/mandrill"
+	"github.com/mattbaird/gochimp"
 )
 
 // SendContactUsEmail handles POST api/contact_us endpoint
@@ -33,23 +33,24 @@ var SendContactUsEmail = func(w http.ResponseWriter, r *http.Request) {
 
 	mandrillClient := cigExchange.GetMandrill()
 
-	message := &mandrill.Message{}
-	message.AddRecipient("info@cig-exchange.ch", "CIG Exchange team", "to")
-	message.FromEmail = "info@cig-exchange.ch"
-	message.FromName = "CIG Exchange contact us"
-	message.Subject = "Contact Us message"
-	message.Text = fmt.Sprintf("Name:%s\nEmail:%s\n\nMessage:\n%s", contactInfo.Name, contactInfo.Email, contactInfo.Message)
-
-	resp, err := mandrillClient.MessagesSend(message)
-	if err != nil {
-		cigExchange.RespondWithError(w, 500, err)
-		return
+	recipients := []gochimp.Recipient{
+		gochimp.Recipient{Email: "info@cig-exchange.ch", Name: "CIG Exchange team", Type: "to"},
 	}
+
+	message := gochimp.Message{
+		Text:      fmt.Sprintf("Name:%s\nEmail:%s\n\nMessage:\n%s", contactInfo.Name, contactInfo.Email, contactInfo.Message),
+		Subject:   "Contact Us message",
+		FromEmail: "info@cig-exchange.ch",
+		FromName:  "CIG Exchange contact us",
+		To:        recipients,
+	}
+
+	resp, err := mandrillClient.MessageSend(message, false)
 
 	// we only have 1 recepient
 	if len(resp) == 1 {
 		if resp[0].Status == "rejected" {
-			cigExchange.RespondWithError(w, 422, fmt.Errorf("Invalid request. %v", resp[0].RejectionReason))
+			cigExchange.RespondWithError(w, 422, fmt.Errorf("Invalid request. %v", resp[0].RejectedReason))
 			return
 		}
 	} else {
