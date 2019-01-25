@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 
@@ -17,19 +19,17 @@ func main() {
 		fmt.Print(e)
 	}
 
-	baseUri := os.Getenv("HOMEPAGE_BACKEND_BASE_URI")
-	fmt.Println("Base URI set to " + baseUri)
-	// For some god fucking reason using this does not work in router!!!!
-	baseUri = "/invest/api/"
+	baseURI := os.Getenv("HOMEPAGE_BACKEND_BASE_URI")
+	// cut double quote symbols
+	baseURI = strings.Replace(baseURI, "\"", "", -1)
+	fmt.Println("Base URI set to " + baseURI)
 
 	router := mux.NewRouter()
 
-	router.HandleFunc(baseUri+"ping", controllers.Ping).Methods("GET")
-	router.HandleFunc(baseUri+"accounts", controllers.CreateAccount).Methods("POST")
-	router.HandleFunc(baseUri+"accounts", controllers.GetAccount).Methods("GET")
-	router.HandleFunc(baseUri+"verification_code", controllers.SendCode).Methods("POST")
-	router.HandleFunc(baseUri+"verification_code", controllers.VerifyCode).Methods("GET")
-	router.HandleFunc(baseUri+"contact_us", controllers.SendContactUsEmail).Methods("POST")
+	router.HandleFunc(baseURI+"ping", controllers.Ping).Methods("GET")
+	router.HandleFunc(baseURI+"accounts/signup", controllers.CreateAccount).Methods("POST")
+	router.HandleFunc(baseURI+"accounts/signin", controllers.GetAccount).Methods("POST")
+	router.HandleFunc(baseURI+"contact_us", controllers.SendContactUsEmail).Methods("POST")
 
 	//attach JWT auth middleware
 	//router.Use(app.JwtAuthentication)
@@ -41,7 +41,7 @@ func main() {
 
 	fmt.Println(port)
 
-	err := http.ListenAndServe(":"+port, router) //Launch the app, visit localhost:8000/api
+	err := http.ListenAndServe(":"+port, router) //Launch the app, visit localhost:80
 	if err != nil {
 		fmt.Print(err)
 	}
