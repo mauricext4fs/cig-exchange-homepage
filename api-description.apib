@@ -40,6 +40,17 @@ Either email or mobile should be specified.
 + Response 200 (application/json)
     + Attributes (Account Response)
 
+## invest/api/accounts/send_otp [/invest/api/accounts/send_otp]
+
+### Send OTP [POST]
+Send one time password.
+Supported types are "email" and "phone"
+
++ Request (application/json)
+    + Attributes (OTP Send Request)
+
++ Response 204
+
 ## Data Structures
 
 ### ContactUs Request
@@ -62,3 +73,7 @@ Either email or mobile should be specified.
 
 ### Account Response
 + uuid: `fdb283d4-7341-4517-b501-371d22d27cfc` (string, required) - user account uuid
+
+### OTP Send Request
++ uuid: `fdb283d4-7341-4517-b501-371d22d27cfc` (string, required) - user account uuid
++ type: `email` (string, required) - otp type, supported values are 'email' and 'phone'
