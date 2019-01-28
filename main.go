@@ -38,8 +38,7 @@ func main() {
 
 	//router.NotFoundHandler = app.NotFoundHandler
 
-	// We always run in docker... for sack of convenience let's always use port 80
-	port := "80"
+	port := os.Getenv("DOCKER_LISTEN_DEFAULT_PORT")
 
 	fmt.Println(port)
 
