@@ -29,13 +29,14 @@ type verificationCodeRequest struct {
 	Code string `json:"code"`
 }
 
+// UserRequest is a structure to represent the signup api request
 type UserRequest struct {
-	Sex         string `json:"sex"`
-	Name        string `json:"name"`
-	LastName    string `json:"lastname"`
-	Email       string `json:"email"`
-	PhoneCode   string `json:"phone_code"`
-	PhoneNumber string `json:"phone_number"`
+	Sex              string `json:"sex"`
+	Name             string `json:"name"`
+	LastName         string `json:"lastname"`
+	Email            string `json:"email"`
+	PhoneCountryCode string `json:"phone_country_code"`
+	PhoneNumber      string `json:"phone_number"`
 }
 
 func (user *UserRequest) convertRequestToUser() *models.User {
@@ -47,7 +48,7 @@ func (user *UserRequest) convertRequestToUser() *models.User {
 	mUser.LastName = user.LastName
 
 	mUser.LoginEmail = models.Contact{Type: "email", Level: "primary", Value1: user.Email}
-	mUser.LoginPhone = models.Contact{Type: "phone", Level: "secondary", Value1: user.PhoneCode, Value2: user.PhoneNumber}
+	mUser.LoginPhone = models.Contact{Type: "phone", Level: "secondary", Value1: user.PhoneCountryCode, Value2: user.PhoneNumber}
 
 	return mUser
 }
@@ -112,8 +113,8 @@ var GetUser = func(w http.ResponseWriter, r *http.Request) {
 	// login using email or phone number
 	if len(userReq.Email) > 0 {
 		user, err = models.GetUserByEmail(userReq.Email)
-	} else if len(userReq.PhoneCode) > 0 && len(userReq.PhoneNumber) > 0 {
-		user, err = models.GetUserByMobile(userReq.PhoneCode, userReq.PhoneNumber)
+	} else if len(userReq.PhoneCountryCode) > 0 && len(userReq.PhoneNumber) > 0 {
+		user, err = models.GetUserByMobile(userReq.PhoneCountryCode, userReq.PhoneNumber)
 	} else {
 		fmt.Println("GetUser: neither email or mobile number specified in post body")
 		cigExchange.Respond(w, resp)
