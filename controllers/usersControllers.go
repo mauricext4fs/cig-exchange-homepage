@@ -15,7 +15,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type accountResponse struct {
+type userResponse struct {
 	UUID string `json:"uuid"`
 }
 
@@ -29,7 +29,31 @@ type verificationCodeRequest struct {
 	Code string `json:"code"`
 }
 
-func (resp *accountResponse) randomUUID() {
+// UserRequest is a structure to represent the signup api request
+type UserRequest struct {
+	Sex              string `json:"sex"`
+	Name             string `json:"name"`
+	LastName         string `json:"lastname"`
+	Email            string `json:"email"`
+	PhoneCountryCode string `json:"phone_country_code"`
+	PhoneNumber      string `json:"phone_number"`
+}
+
+func (user *UserRequest) convertRequestToUser() *models.User {
+	mUser := &models.User{}
+
+	mUser.Sex = user.Sex
+	mUser.Role = "Platform"
+	mUser.Name = user.Name
+	mUser.LastName = user.LastName
+
+	mUser.LoginEmail = models.Contact{Type: "email", Level: "primary", Value1: user.Email}
+	mUser.LoginPhone = models.Contact{Type: "phone", Level: "secondary", Value1: user.PhoneCountryCode, Value2: user.PhoneNumber}
+
+	return mUser
+}
+
+func (resp *userResponse) randomUUID() {
 	UUID, err := uuid.NewV4()
 	if err != nil {
 		// uuid for an unlikely event of NewV4 failure
@@ -39,72 +63,75 @@ func (resp *accountResponse) randomUUID() {
 	resp.UUID = UUID.String()
 }
 
-// CreateAccount handles POST api/accounts/signup endpoint
-var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
+// CreateUser handles POST api/users/signup endpoint
+var CreateUser = func(w http.ResponseWriter, r *http.Request) {
 
-	resp := &accountResponse{}
+	resp := &userResponse{}
 	resp.randomUUID()
 
-	account := &models.Account{}
-	// decode account object from request body
-	err := json.NewDecoder(r.Body).Decode(account)
+	userReq := &UserRequest{}
+	// decode user object from request body
+	err := json.NewDecoder(r.Body).Decode(userReq)
 	if err != nil {
-		fmt.Println("CreateAccount: body JSON decoding error:")
+		fmt.Println("CreateUser: body JSON decoding error:")
 		fmt.Println(err.Error())
 		cigExchange.Respond(w, resp)
 		return
 	}
 
-	// try to create account
-	err = account.Create()
+	user := userReq.convertRequestToUser()
+
+	// try to create user
+	err = user.Create()
 	if err != nil {
-		fmt.Println("CreateAccount: db Create error:")
+		fmt.Println("CreateUser: db Create error:")
 		fmt.Println(err.Error())
 		cigExchange.Respond(w, resp)
 		return
 	}
-	resp.UUID = account.ID
+	resp.UUID = user.ID
 	cigExchange.Respond(w, resp)
 }
 
-// GetAccount handles GET api/accounts/signin endpoint
-var GetAccount = func(w http.ResponseWriter, r *http.Request) {
+// GetUser handles GET api/users/signin endpoint
+var GetUser = func(w http.ResponseWriter, r *http.Request) {
 
-	resp := &accountResponse{}
+	resp := &userResponse{}
 	resp.randomUUID()
 
-	account := &models.Account{}
-	// decode account object from request body
-	err := json.NewDecoder(r.Body).Decode(account)
+	userReq := &UserRequest{}
+	// decode user object from request body
+	err := json.NewDecoder(r.Body).Decode(userReq)
 	if err != nil {
-		fmt.Println("GetAccount: body JSON decoding error:")
+		fmt.Println("GetUser: body JSON decoding error:")
 		fmt.Println(err.Error())
 		cigExchange.Respond(w, resp)
 		return
 	}
 
+	user := &models.User{}
 	// login using email or phone number
-	if len(account.Email) > 0 {
-		account, err = models.GetAccountByEmail(account.Email)
-	} else if len(account.MobileCode) > 0 && len(account.MobileNumber) > 0 {
-		account, err = models.GetAccountByMobile(account.MobileCode, account.MobileNumber)
+	if len(userReq.Email) > 0 {
+		user, err = models.GetUserByEmail(userReq.Email)
+	} else if len(userReq.PhoneCountryCode) > 0 && len(userReq.PhoneNumber) > 0 {
+		user, err = models.GetUserByMobile(userReq.PhoneCountryCode, userReq.PhoneNumber)
 	} else {
-		fmt.Println("GetAccount: neither email or mobile number specified in post body")
+		fmt.Println("GetUser: neither email or mobile number specified in post body")
 		cigExchange.Respond(w, resp)
 		return
 	}
 
 	if err != nil {
-		fmt.Println("GetAccount: db Lookup error:")
+		fmt.Println("GetUser: db Lookup error:")
 		fmt.Println(err.Error())
 		cigExchange.Respond(w, resp)
 		return
 	}
-	resp.UUID = account.ID
+	resp.UUID = user.ID
 	cigExchange.Respond(w, resp)
 }
 
-// SendCode handles POST api/accounts/send_otp endpoint
+// SendCode handles POST api/users/send_otp endpoint
 var SendCode = func(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(204)
@@ -118,7 +145,7 @@ var SendCode = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account, err := models.GetAccount(reqStruct.UUID)
+	user, err := models.GetUser(reqStruct.UUID)
 	if err != nil {
 		fmt.Println("SendCode: db Lookup error:")
 		fmt.Println(err.Error())
@@ -128,7 +155,7 @@ var SendCode = func(w http.ResponseWriter, r *http.Request) {
 	// send code to email or phone number
 	if reqStruct.Type == "phone" {
 		twilioClient := cigExchange.GetTwilio()
-		_, err = twilioClient.ReceiveOTP(account.MobileCode, account.MobileNumber)
+		_, err = twilioClient.ReceiveOTP(user.LoginPhone.Value1, user.LoginPhone.Value2)
 		if err != nil {
 			fmt.Println("SendCode: twillio error:")
 			fmt.Println(err.Error())
@@ -144,13 +171,13 @@ var SendCode = func(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err.Error())
 			return
 		}
-		sendCodeInEmail(code, account.Email)
+		sendCodeInEmail(code, user.LoginEmail.Value1)
 	} else {
 		fmt.Println("SendCode: Error: unsupported otp type")
 	}
 }
 
-// VerifyCode handles GET api/accounts/verify_otp endpoint
+// VerifyCode handles GET api/users/verify_otp endpoint
 var VerifyCode = func(w http.ResponseWriter, r *http.Request) {
 
 	retErr := fmt.Errorf("Invalid code")
@@ -166,7 +193,7 @@ var VerifyCode = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account, err := models.GetAccount(reqStruct.UUID)
+	user, err := models.GetUser(reqStruct.UUID)
 	if err != nil {
 		fmt.Println("VerifyCode: db Lookup error:")
 		fmt.Println(err.Error())
@@ -177,7 +204,7 @@ var VerifyCode = func(w http.ResponseWriter, r *http.Request) {
 	// verify code
 	if reqStruct.Type == "phone" {
 		twilioClient := cigExchange.GetTwilio()
-		_, err := twilioClient.VerifyOTP(reqStruct.Code, account.MobileCode, account.MobileNumber)
+		_, err := twilioClient.VerifyOTP(reqStruct.Code, user.LoginPhone.Value1, user.LoginPhone.Value2)
 		if err != nil {
 			fmt.Println("VerifyCode: twillio error:")
 			fmt.Println(err.Error())
@@ -207,7 +234,7 @@ var VerifyCode = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// verification passed, generate jwt and return it
-	tk := &app.Token{UserUUID: account.ID}
+	tk := &app.Token{UserUUID: user.ID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, err := token.SignedString([]byte(os.Getenv("token_password")))
 	if err != nil {

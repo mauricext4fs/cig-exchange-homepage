@@ -17,30 +17,30 @@ Send contact us email message.
 
 # Group Account
 
-## invest/api/accounts/signup [/invest/api/accounts/signup]
+## invest/api/users/signup [/invest/api/users/signup]
 
 ### Signup [POST]
 Create a new account.
 
 + Request (application/json)
-    + Attributes (Account Request)
+    + Attributes (User Request)
 
 + Response 200 (application/json)
-    + Attributes (Account Response)
+    + Attributes (User Response)
 
-## invest/api/accounts/signin [/invest/api/accounts/signin]
+## invest/api/users/signin [/invest/api/users/signin]
 
 ### Signin [POST]
 Login to existing account.
 Either email or mobile should be specified.
 
 + Request (application/json)
-    + Attributes (Account Signin Request)
+    + Attributes (User Signin Request)
 
 + Response 200 (application/json)
-    + Attributes (Account Response)
+    + Attributes (User Response)
 
-## invest/api/accounts/send_otp [/invest/api/accounts/send_otp]
+## invest/api/users/send_otp [/invest/api/users/send_otp]
 
 ### Send OTP [POST]
 Send one time password.
@@ -51,7 +51,7 @@ Supported types are "email" and "phone"
 
 + Response 204
 
-## invest/api/accounts/verify_otp [/invest/api/accounts/verify_otp]
+## invest/api/users/verify_otp [/invest/api/users/verify_otp]
 
 ### Verify OTP [POST]
 Verify one time password.
@@ -71,20 +71,20 @@ On success, jwt is returned.
 + email: email (string, required) - email
 + message: message (string, required) - message
 
-### Account Request
-+ first_name: First Name (string, required) - user first name
-+ last_name: Last Name (string, required) - user last name
-+ reference_key: ref key (string, required) - reference key
+### User Request
++ name: First Name (string, required) - user first name
++ lastname: Last Name (string, required) - user last name
++ sex: male (string, required) - user sex
 + email: email@email.com (string, required) - user email
-+ mobile_code: +1 (string, required) - user mobile number code
-+ mobile_number: 1111111111 (string, required) - user mobile number
++ phone_country_code: +1 (string, required) - user mobile number code
++ phone_number: 1111111111 (string, required) - user mobile number
 
-### Account Signin Request
+### User Signin Request
 + email: email@email.com (string) - user email
-+ mobile_code: +1 (string) - user mobile number code
-+ mobile_number: 1111111111 (string) - user mobile number
++ phone_country_code: +1 (string) - user mobile number code
++ phone_number: 1111111111 (string) - user mobile number
 
-### Account Response
+### User Response
 + uuid: `fdb283d4-7341-4517-b501-371d22d27cfc` (string, required) - user account uuid
 
 ### OTP Send Request
