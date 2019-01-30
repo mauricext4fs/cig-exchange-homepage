@@ -236,7 +236,7 @@ var VerifyCode = func(w http.ResponseWriter, r *http.Request) {
 	// verification passed, generate jwt and return it
 	tk := &app.Token{UserUUID: user.ID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, err := token.SignedString([]byte(os.Getenv("token_password")))
+	tokenString, err := token.SignedString([]byte(os.Getenv("TOKEN_PASSWORD")))
 	if err != nil {
 		fmt.Println("VerifyCode: jwt generation failed:")
 		fmt.Println(err.Error())
