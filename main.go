@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cig-exchange-libs/auth"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -26,15 +27,17 @@ func main() {
 
 	router := mux.NewRouter()
 
+	userAPI := auth.NewUserAPI("homepage", baseURI)
+
 	router.HandleFunc(baseURI+"ping", controllers.Ping).Methods("GET")
-	router.HandleFunc(baseURI+"users/signup", controllers.CreateUser).Methods("POST")
-	router.HandleFunc(baseURI+"users/signin", controllers.GetUser).Methods("POST")
-	router.HandleFunc(baseURI+"users/send_otp", controllers.SendCode).Methods("POST")
-	router.HandleFunc(baseURI+"users/verify_otp", controllers.VerifyCode).Methods("POST")
+	router.HandleFunc(baseURI+"users/signup", userAPI.CreateUserHandler).Methods("POST")
+	router.HandleFunc(baseURI+"users/signin", userAPI.GetUserHandler).Methods("POST")
+	router.HandleFunc(baseURI+"users/send_otp", userAPI.SendCodeHandler).Methods("POST")
+	router.HandleFunc(baseURI+"users/verify_otp", userAPI.VerifyCodeHandler).Methods("POST")
 	router.HandleFunc(baseURI+"contact_us", controllers.SendContactUsEmail).Methods("POST")
 
-	//attach JWT auth middleware
-	//router.Use(app.JwtAuthentication)
+	// attach JWT auth middleware
+	router.Use(userAPI.JwtAuthenticationHandler)
 
 	//router.NotFoundHandler = app.NotFoundHandler
 
