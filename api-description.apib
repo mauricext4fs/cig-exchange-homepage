@@ -15,7 +15,7 @@ Send contact us email message.
 
 + Response 204
 
-# Group Account
+# Group Users
 
 ## invest/api/users/signup [/invest/api/users/signup]
 
@@ -71,16 +71,19 @@ On success, jwt is returned.
 + email: email (string, required) - email
 + message: message (string, required) - message
 
+
 ### User Request
 + name: First Name (string, required) - user first name
 + lastname: Last Name (string, required) - user last name
 + sex: male (string, required) - user sex
-+ email: email@email.com (string, required) - user email
++ email: dev+test@cig-exchange.ch (string, required) - user email
 + phone_country_code: +1 (string, required) - user mobile number code
 + phone_number: 1111111111 (string, required) - user mobile number
++ reference_key: vlad (string) - organisation reference key, required for 'p2p' platform
++ platform: trading (string, required) - platform to create account on, supported values are 'p2p' and 'trading'
 
 ### User Signin Request
-+ email: email@email.com (string) - user email
++ email: dev+test@cig-exchange.ch (string) - user email
 + phone_country_code: +1 (string) - user mobile number code
 + phone_number: 1111111111 (string) - user mobile number
 

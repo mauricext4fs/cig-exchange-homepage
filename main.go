@@ -27,7 +27,7 @@ func main() {
 
 	router := mux.NewRouter()
 
-	userAPI := auth.NewUserAPI("homepage", baseURI)
+	userAPI := auth.NewUserAPI(auth.PlatformTrading, baseURI)
 
 	router.HandleFunc(baseURI+"ping", controllers.Ping).Methods("GET")
 	router.HandleFunc(baseURI+"users/signup", userAPI.CreateUserHandler).Methods("POST")
