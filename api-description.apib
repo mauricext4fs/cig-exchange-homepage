@@ -15,6 +15,18 @@ Send contact us email message.
 
 + Response 204
 
+
+# Group Offerings
+
+## invest/api/offerings [/invest/api/offerings]
+
+### Offerings [GET]
+Get all offerings.
+
++ Response 200 (application/json)
+    + Attributes (array[Offering Response])
+
+
 # Group Users
 
 ## invest/api/users/signup [/invest/api/users/signup]
@@ -67,9 +79,22 @@ On success, jwt is returned.
 ## Data Structures
 
 ### ContactUs Request
-+ name: name (string, required) - name
++ name: Dredd Test (string, required) - name
 + email: email (string, required) - email
-+ message: message (string, required) - message
++ message: This is a dredd test generated email (string, required) - message
+
+
+### Offering Response
++ id: `fdb283d4-7341-4517-b501-371d22d27cfc` (string, required) - offering UUID
++ title: title (string, required) - offering title
++ type: type1, type2 (array[string], required) - offering types array
++ description: description (string, required) - offering description
++ rating: rating (string, required) - offering rating
++ amount: 200.98 (number, required) - offering amount
++ remaining: 100.66 (number, required) - offering remaining
++ interest: 10.5 (number, required) - offering interest
++ period: 300 (number, required) - offering period
++ organisation: organisation (string, required) - offering organisation name
 
 
 ### User Request
@@ -79,7 +104,7 @@ On success, jwt is returned.
 + email: dev+test@cig-exchange.ch (string, required) - user email
 + phone_country_code: +1 (string, required) - user mobile number code
 + phone_number: 1111111111 (string, required) - user mobile number
-+ reference_key: vlad (string) - organisation reference key, required for 'p2p' platform
++ reference_key: credit_24_gate (string) - organisation reference key, required for 'p2p' platform
 + platform: trading (string, required) - platform to create account on, supported values are 'p2p' and 'trading'
 
 ### User Signin Request
