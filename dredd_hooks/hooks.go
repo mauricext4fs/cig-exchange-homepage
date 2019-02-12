@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/joho/godotenv"
@@ -139,6 +140,15 @@ func main() {
 		}
 		userJWT = userJWTInterface.(string)
 		log.Printf("jwt: %v", userJWT)
+
+		// save jwt in redis for p2p backend tests
+		expiration := 5 * time.Minute
+		err = client.Set("jwt", userJWT, expiration).Err()
+		if err != nil {
+			fmt.Println("Verify OTP: redis error:")
+			fmt.Println(err.Error())
+			return
+		}
 	})
 
 	server.Serve()
