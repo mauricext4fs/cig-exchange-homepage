@@ -15,9 +15,7 @@ func convertOffering(offering *models.Offering) *offeringsReponse {
 
 	response := &offeringsReponse{}
 	response.Offering = offering
-	if offering.Organisation != nil {
-		response.OrganisationName = offering.Organisation.Name
-	}
+	response.OrganisationName = offering.Organisation.Name
 	return response
 }
 
