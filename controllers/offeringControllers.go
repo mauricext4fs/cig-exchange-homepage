@@ -32,7 +32,9 @@ var GetOfferings = func(w http.ResponseWriter, r *http.Request) {
 	// add organisation name to offerings structs
 	respOfferings := make([]*offeringsReponse, 0)
 	for _, offering := range offerings {
-		respOfferings = append(respOfferings, convertOffering(offering))
+		if offering.IsVisible {
+			respOfferings = append(respOfferings, convertOffering(offering))
+		}
 	}
 
 	cigExchange.Respond(w, respOfferings)
