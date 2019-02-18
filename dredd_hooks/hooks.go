@@ -29,16 +29,28 @@ func main() {
 	orgUUID := ""
 
 	// prepare the database:
-	// 1. delete 'dredd' user if it exists (first name  = 'dredd')
-	// 2. create 'dredd' organisation (user will be registered with it)
-	// 3. create some offerings belonging to 'dredd' organization
-	// 4. verify that created offerings are present in 'invest/offerings' api call
+	// 1. delete 'dredd' users if it exists (first name  = 'dredd')
+	// 2. delete 'dredd' organisations if it exists (reference key = 'dredd')
+	// 3. create 'dredd' organisation (user will be registered with it)
+	// 4. create some offerings belonging to 'dredd' organization
+	// 5. verify that created offerings are present in 'invest/offerings' api call
 
-	// delete 'dredd' user if it exists (first name  = 'dredd')
-	var user models.User
-	err := dbClient.Where(&models.User{Name: dredd}).Find(&user).Error
+	// delete 'dredd' users if it exists (first name  = 'dredd')
+	usersDelete := make([]models.User, 0)
+	err := dbClient.Where(&models.User{Name: dredd}).Find(&usersDelete).Error
 	if err == nil {
-		dbClient.Delete(&user)
+		for _, u := range usersDelete {
+			dbClient.Delete(&u)
+		}
+	}
+
+	// delete 'dredd' organisations if it exists (reference key = 'dredd')
+	orgsDelete := make([]models.Organisation, 0)
+	err = dbClient.Where(&models.Organisation{ReferenceKey: dredd}).Find(&orgsDelete).Error
+	if err == nil {
+		for _, o := range orgsDelete {
+			dbClient.Delete(&o)
+		}
 	}
 
 	// create 'dredd' organisation
