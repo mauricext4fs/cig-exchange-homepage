@@ -21,6 +21,7 @@ func main() {
 	server := hooks.NewServer(hooks.NewHooksRunner(h))
 
 	redisClient := cigExchange.GetRedis()
+	dbClient := cigExchange.GetDB()
 
 	// save created user UUID and JWT and organization UUID
 	userUUID := ""
@@ -32,7 +33,6 @@ func main() {
 	// 2. create 'dredd' organisation (user will be registered with it)
 	// 3. create some offerings belonging to 'dredd' organization
 	// 4. verify that created offerings are present in 'invest/offerings' api call
-	dbClient := cigExchange.GetDB()
 
 	// delete 'dredd' user if it exists (first name  = 'dredd')
 	var user models.User
