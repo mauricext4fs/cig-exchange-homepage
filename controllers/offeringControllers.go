@@ -9,6 +9,7 @@ import (
 type offeringsReponse struct {
 	*models.Offering
 	OrganisationName string `json:"organisation"`
+	OrganisationURL  string `json:"organisation_website"`
 }
 
 func convertOffering(offering *models.Offering) *offeringsReponse {
@@ -16,6 +17,7 @@ func convertOffering(offering *models.Offering) *offeringsReponse {
 	response := &offeringsReponse{}
 	response.Offering = offering
 	response.OrganisationName = offering.Organisation.Name
+	response.OrganisationURL = offering.Organisation.Website
 	return response
 }
 
