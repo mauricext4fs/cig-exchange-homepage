@@ -1,16 +1,17 @@
 package main
 
 import (
+	"cig-exchange-homepage-backend/controllers"
+	"cig-exchange-libs"
 	"cig-exchange-libs/auth"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-
-	"cig-exchange-homepage-backend/controllers"
-	"fmt"
-	"net/http"
-	"os"
 )
 
 func main() {
@@ -46,6 +47,36 @@ func main() {
 	router.HandleFunc(baseURI+"users/verify_otp", userAPI.VerifyCodeHandler).Methods("POST")
 	router.HandleFunc(baseURI+"offerings", controllers.GetOfferings).Methods("GET")
 	router.HandleFunc(baseURI+"contact_us", controllers.SendContactUsEmail).Methods("POST")
+
+	// dev environment api call to get signup code
+	if cigExchange.IsDevEnv() {
+		fmt.Println("DEV ENVIRONMENT!!! users/code api call enabled")
+		router.HandleFunc(baseURI+"users/code", func(w http.ResponseWriter, r *http.Request) {
+			type input struct {
+				UUID string `json:"uuid"`
+			}
+			var in input
+			err := json.NewDecoder(r.Body).Decode(&in)
+			if err != nil {
+				cigExchange.RespondWithError(w, 422, fmt.Errorf("Invalid request"))
+				return
+			}
+			if len(in.UUID) == 0 {
+				cigExchange.RespondWithError(w, 422, fmt.Errorf("Empty uuid parameter"))
+				return
+			}
+
+			rediskey := cigExchange.GenerateRedisKey(in.UUID)
+			redisCmd := cigExchange.GetRedis().Get(rediskey)
+			if redisCmd.Err() != nil {
+				cigExchange.RespondWithError(w, 422, fmt.Errorf("Redis error"))
+				return
+			}
+			resp := make(map[string]string, 0)
+			resp["code"] = redisCmd.Val()
+			cigExchange.Respond(w, resp)
+		}).Methods("POST")
+	}
 
 	// attach JWT auth middleware
 	router.Use(userAPI.JwtAuthenticationHandler)
