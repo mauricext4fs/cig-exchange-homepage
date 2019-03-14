@@ -30,15 +30,17 @@ func main() {
 
 	// List of endpoints that doesn't require auth
 	skipJWT := []string{
-		"ping",
-		"users/signup",
-		"users/signin",
-		"users/send_otp",
-		"users/verify_otp",
-		"offerings",
-		"contact_us",
+		baseURI + "ping",
+		baseURI + "users/signup",
+		baseURI + "users/signin",
+		baseURI + "users/send_otp",
+		baseURI + "users/verify_otp",
+		baseURI + "offerings",
+		baseURI + "contact_us",
 	}
-	userAPI := auth.NewUserAPI(auth.PlatformTrading, baseURI, skipJWT)
+	userAPI := auth.UserAPI{
+		SkipJWT: skipJWT,
+	}
 
 	router.HandleFunc(baseURI+"ping", controllers.Ping).Methods("GET")
 	router.HandleFunc(baseURI+"users/signup", userAPI.CreateUserHandler).Methods("POST")
