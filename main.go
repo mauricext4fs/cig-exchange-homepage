@@ -47,7 +47,7 @@ func main() {
 	router.HandleFunc(baseURI+"users/signin", userAPI.GetUserHandler).Methods("POST")
 	router.HandleFunc(baseURI+"users/send_otp", userAPI.SendCodeHandler).Methods("POST")
 	router.HandleFunc(baseURI+"users/verify_otp", userAPI.VerifyCodeHandler).Methods("POST")
-	router.HandleFunc(baseURI+"offerings", controllers.GetOfferings).Methods("GET")
+	router.HandleFunc(baseURI+"offerings", controllers.GetAllOfferings).Methods("GET")
 	router.HandleFunc(baseURI+"contact_us", controllers.SendContactUsEmail).Methods("POST")
 
 	// dev environment api call to get signup code

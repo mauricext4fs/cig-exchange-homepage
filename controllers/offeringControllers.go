@@ -6,23 +6,9 @@ import (
 	"net/http"
 )
 
-type offeringsReponse struct {
-	*models.Offering
-	OrganisationName string `json:"organisation"`
-	OrganisationURL  string `json:"organisation_website"`
-}
-
-func convertOffering(offering *models.Offering) *offeringsReponse {
-
-	response := &offeringsReponse{}
-	response.Offering = offering
-	response.OrganisationName = offering.Organisation.Name
-	response.OrganisationURL = offering.Organisation.Website
-	return response
-}
-
-// GetOfferings handles GET api/offerings endpoint
-var GetOfferings = func(w http.ResponseWriter, r *http.Request) {
+// GetAllOfferings handles GET api/offerings endpoint
+// does not perform JWT based organisation filtering
+var GetAllOfferings = func(w http.ResponseWriter, r *http.Request) {
 
 	// query all offerings from db
 	offerings, err := models.GetOfferings()
@@ -31,11 +17,22 @@ var GetOfferings = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// extended response with organisation and org website
+	type offeringsReponse struct {
+		*models.Offering
+		OrganisationName string `json:"organisation"`
+		OrganisationURL  string `json:"organisation_website"`
+	}
+
 	// add organisation name to offerings structs
 	respOfferings := make([]*offeringsReponse, 0)
 	for _, offering := range offerings {
 		if offering.IsVisible {
-			respOfferings = append(respOfferings, convertOffering(offering))
+			respOffering := &offeringsReponse{}
+			respOffering.Offering = offering
+			respOffering.OrganisationName = offering.Organisation.Name
+			respOffering.OrganisationURL = offering.Organisation.Website
+			respOfferings = append(respOfferings, respOffering)
 		}
 	}
 
