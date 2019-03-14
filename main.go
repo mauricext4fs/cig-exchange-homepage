@@ -30,22 +30,24 @@ func main() {
 
 	// List of endpoints that doesn't require auth
 	skipJWT := []string{
-		"ping",
-		"users/signup",
-		"users/signin",
-		"users/send_otp",
-		"users/verify_otp",
-		"offerings",
-		"contact_us",
+		baseURI + "ping",
+		baseURI + "users/signup",
+		baseURI + "users/signin",
+		baseURI + "users/send_otp",
+		baseURI + "users/verify_otp",
+		baseURI + "offerings",
+		baseURI + "contact_us",
 	}
-	userAPI := auth.NewUserAPI(auth.PlatformTrading, baseURI, skipJWT)
+	userAPI := auth.UserAPI{
+		SkipJWT: skipJWT,
+	}
 
 	router.HandleFunc(baseURI+"ping", controllers.Ping).Methods("GET")
 	router.HandleFunc(baseURI+"users/signup", userAPI.CreateUserHandler).Methods("POST")
 	router.HandleFunc(baseURI+"users/signin", userAPI.GetUserHandler).Methods("POST")
 	router.HandleFunc(baseURI+"users/send_otp", userAPI.SendCodeHandler).Methods("POST")
 	router.HandleFunc(baseURI+"users/verify_otp", userAPI.VerifyCodeHandler).Methods("POST")
-	router.HandleFunc(baseURI+"offerings", controllers.GetOfferings).Methods("GET")
+	router.HandleFunc(baseURI+"offerings", controllers.GetAllOfferings).Methods("GET")
 	router.HandleFunc(baseURI+"contact_us", controllers.SendContactUsEmail).Methods("POST")
 
 	// dev environment api call to get signup code
